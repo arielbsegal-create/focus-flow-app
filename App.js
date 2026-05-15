@@ -14,34 +14,34 @@ const MathEngine = {
                 const rad = ang * (Math.PI / 180);
 
                 if (fn === 'sin') {
-                    q = `Find Opposite (x) given Hypotenuse = ${hyp} and θ = ${ang}°.`;
+                    q = `Find x (Opposite) where Hypotenuse = ${hyp} and θ = ${ang}°.`;
                     a = Math.round(hyp * Math.sin(rad)).toString();
                     draw = { type: 'tri', hyp: hyp, opp: 'x', adj: '', ang: ang };
                 } else if (fn === 'cos') {
-                    q = `Find Adjacent (x) given Hypotenuse = ${hyp} and θ = ${ang}°.`;
+                    q = `Find x (Adjacent) where Hypotenuse = ${hyp} and θ = ${ang}°.`;
                     a = Math.round(hyp * Math.cos(rad)).toString();
                     draw = { type: 'tri', hyp: hyp, opp: '', adj: 'x', ang: ang };
                 } else {
                     const adjVal = 10;
-                    q = `Find Opposite (x) given Adjacent = ${adjVal} and θ = ${ang}°.`;
+                    q = `Find x (Opposite) where Adjacent = ${adjVal} and θ = ${ang}°.`;
                     a = Math.round(adjVal * Math.tan(rad)).toString();
                     draw = { type: 'tri', hyp: '', opp: 'x', adj: adjVal, ang: ang };
                 }
                 break;
 
             case 'Algebra':
-                const x = Math.floor(Math.random() * (scalar / 2)) + 2;
-                const c = level === 'Easy' ? 1 : Math.floor(Math.random() * 10) + 2;
+                const xVal = Math.floor(Math.random() * (scalar / 2)) + 2;
+                const coeff = level === 'Easy' ? 1 : Math.floor(Math.random() * 10) + 2;
                 const b = Math.floor(Math.random() * scalar);
-                const total = (c * x) + b;
-                q = level === 'Easy' ? `x + ${b} = ${total}. Find x.` : `${c}x + ${b} = ${total}. Find x.`;
-                a = x.toString();
+                const total = (coeff * xVal) + b;
+                q = level === 'Easy' ? `x + ${b} = ${total}` : `${coeff}x + ${b} = ${total}`;
+                a = xVal.toString();
                 break;
 
             case 'Geometry':
                 const l = Math.floor(Math.random() * (scalar / 5)) + 5;
                 const w = Math.floor(Math.random() * (scalar / 5)) + 3;
-                q = level === 'Hard' ? `Area = ${l * w}, Width = ${w}. Find Perimeter.` : `Find Area of ${l}x${w} rectangle.`;
+                q = level === 'Hard' ? `Area: ${l*w}, Width: ${w}. Perimeter?` : `Area of ${l}x${w} rectangle?`;
                 a = level === 'Hard' ? (2 * (l + w)).toString() : (l * w).toString();
                 draw = { type: 'rect', l, w };
                 break;
@@ -61,7 +61,7 @@ function TrigTool() {
     const r = deg * (Math.PI / 180);
     return (
         <div className="bg-slate-900 p-6 rounded-[32px] text-white shadow-2xl border-t-4 border-indigo-500 animate-in">
-            <p className="text-[10px] font-black text-indigo-400 uppercase mb-4 tracking-widest text-center">Trig Reference</p>
+            <p className="text-[10px] font-black text-indigo-400 uppercase mb-4 tracking-[0.2em] text-center">Live Trig Calc</p>
             <input type="number" value={deg} onChange={(e) => setDeg(e.target.value)} className="w-full bg-slate-800 p-3 rounded-xl text-center text-2xl font-black outline-none mb-4" />
             <div className="space-y-2 text-xs font-bold italic">
                 <div className="flex justify-between p-2 bg-white/5 rounded-lg"><span>sin</span><span className="text-indigo-400">{Math.sin(r).toFixed(3)}</span></div>
@@ -89,7 +89,7 @@ function Scratchpad() {
         const {x, y} = getPos(e);
         const ctx = canvasRef.current.getContext('2d');
         ctx.strokeStyle = '#6366f1';
-        ctx.lineWidth = 2; // THINNER PENCIL AS REQUESTED
+        ctx.lineWidth = 2; // Precise Thinner Pencil
         ctx.lineCap = 'round';
         ctx.lineTo(x, y); ctx.stroke();
     };
@@ -114,17 +114,17 @@ function App() {
         <div className="flex min-h-screen">
             <aside className="w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between fixed h-full z-10">
                 <div>
-                    <h1 className="text-2xl font-black text-indigo-600 mb-10 italic tracking-tighter">FOCUSFLOW</h1>
+                    <h1 className="text-2xl font-black text-indigo-600 mb-10 italic tracking-tighter uppercase">FocusFlow</h1>
                     <nav className="space-y-2">
                         {['dashboard', 'math', 'timer'].map(v => (
-                            <button key={v} onClick={() => {setView(v); setIsStarted(false);}} className={`w-full p-4 rounded-2xl font-bold transition-all ${view === v ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}>
-                                {v === 'dashboard' ? '📊 Dashboard' : v === 'math' ? '🧠 AI Tutor' : '⏱️ Timer'}
+                            <button key={v} onClick={() => {setView(v); setIsStarted(false);}} className={`w-full p-4 rounded-2xl font-bold transition-all text-left flex items-center gap-3 ${view === v ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}>
+                                {v === 'dashboard' ? '📊 Profile' : v === 'math' ? '🧠 AI Tutor' : '⏱️ Timer'}
                             </button>
                         ))}
                     </nav>
                 </div>
                 <div className="bg-slate-900 p-6 rounded-[32px] text-white">
-                    <p className="text-[10px] font-black text-indigo-400 uppercase mb-1">Status</p>
+                    <p className="text-[10px] font-black text-indigo-400 uppercase mb-1">Energy Units</p>
                     <p className="text-2xl font-black">{xp} XP</p>
                 </div>
             </aside>
@@ -134,26 +134,26 @@ function App() {
                 {view === 'timer' && <TimerView onComplete={() => setXp(p => p + 100)} />}
                 {view === 'math' && (
                     !isStarted ? (
-                        <div className="max-w-xl mx-auto bg-white p-10 rounded-[48px] shadow-2xl mt-10 border-4 border-indigo-50">
-                            <h2 className="text-3xl font-black mb-8 italic uppercase">Settings</h2>
-                            <div className="space-y-6">
+                        <div className="max-w-xl mx-auto bg-white p-12 rounded-[56px] shadow-2xl mt-10 border-4 border-indigo-50 animate-in">
+                            <h2 className="text-3xl font-black mb-8 italic uppercase tracking-tighter">Training Config</h2>
+                            <div className="space-y-8">
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 mb-2 uppercase">Subject</p>
-                                    <div className="grid grid-cols-2 gap-2">
+                                    <p className="text-[10px] font-black text-slate-400 mb-3 uppercase tracking-widest">Subject</p>
+                                    <div className="grid grid-cols-2 gap-3">
                                         {['Addition', 'Algebra', 'Geometry', 'Trigo'].map(t => (
-                                            <button key={t} onClick={() => setConfig({...config, topic: t})} className={`p-4 rounded-2xl font-black border-4 ${config.topic === t ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'border-slate-50 text-slate-400'}`}>{t}</button>
+                                            <button key={t} onClick={() => setConfig({...config, topic: t})} className={`p-4 rounded-2xl font-black border-4 transition-all ${config.topic === t ? 'border-indigo-600 bg-indigo-50 text-indigo-600 scale-105' : 'border-slate-50 text-slate-400'}`}>{t}</button>
                                         ))}
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 mb-2 uppercase">Difficulty</p>
-                                    <div className="grid grid-cols-3 gap-2">
+                                    <p className="text-[10px] font-black text-slate-400 mb-3 uppercase tracking-widest">Difficulty</p>
+                                    <div className="grid grid-cols-3 gap-3">
                                         {['Easy', 'Medium', 'Hard'].map(l => (
-                                            <button key={l} onClick={() => setConfig({...config, level: l})} className={`p-4 rounded-2xl font-black border-4 ${config.level === l ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'border-slate-50 text-slate-400'}`}>{l}</button>
+                                            <button key={l} onClick={() => setConfig({...config, level: l})} className={`p-4 rounded-2xl font-black border-4 transition-all ${config.level === l ? 'border-indigo-600 bg-indigo-50 text-indigo-600 scale-105' : 'border-slate-50 text-slate-400'}`}>{l}</button>
                                         ))}
                                     </div>
                                 </div>
-                                <button onClick={() => setIsStarted(true)} className="w-full bg-indigo-600 text-white py-6 rounded-[32px] font-black text-xl uppercase">Start Session</button>
+                                <button onClick={() => setIsStarted(true)} className="w-full bg-indigo-600 text-white py-8 rounded-[40px] font-black text-2xl uppercase shadow-2xl shadow-indigo-100 hover:bg-indigo-700 transition-all">Start Session</button>
                             </div>
                         </div>
                     ) : (
@@ -181,46 +181,41 @@ function TutorView({ config, onCorrect, onBack }) {
     };
 
     return (
-        <div className="max-w-6xl mx-auto flex gap-8 items-start animate-in">
+        <div className="max-w-6xl mx-auto flex gap-10 items-start animate-in">
             <div className="flex-1 bg-white p-12 rounded-[56px] shadow-2xl border-4 border-indigo-50">
-                <button onClick={onBack} className="mb-6 text-slate-300 font-black text-xs uppercase tracking-widest hover:text-indigo-600">← Back</button>
-                <h3 className="text-4xl font-black text-slate-900 mb-10 leading-tight">{prob.q}</h3>
+                <button onClick={onBack} className="mb-8 text-slate-300 font-black text-xs uppercase tracking-widest hover:text-indigo-600 transition-colors">← Abandon Mission</button>
+                <h3 className="text-4xl font-black text-slate-900 mb-10 leading-tight italic tracking-tighter">{prob.q}</h3>
 
                 {prob.draw && (
-                    <div className="bg-slate-50 p-10 rounded-[40px] border-2 border-slate-100 flex justify-center mb-10 relative">
+                    <div className="bg-slate-50 p-12 rounded-[40px] border-2 border-slate-100 flex justify-center mb-10">
                         <svg width="240" height="180" viewBox="0 0 240 180">
                             {prob.draw.type === 'tri' ? (
                                 <g>
                                     <path d="M60,140 L180,140 L180,40 Z" fill="rgba(99, 102, 241, 0.05)" stroke="#6366f1" strokeWidth="6" strokeLinejoin="round" />
-                                    {/* THETA ANGLE LABEL */}
-                                    <text x="85" y="135" className="fill-indigo-600 font-black text-xs">{prob.draw.ang}°</text>
-                                    {/* HYPOTENUSE LABEL */}
-                                    <text x="100" y="80" textAnchor="middle" transform="rotate(-40 100,80)" className="fill-slate-400 font-black text-sm italic">{prob.draw.hyp}</text>
-                                    {/* OPPOSITE LABEL */}
-                                    <text x="195" y="95" textAnchor="middle" className="fill-slate-400 font-black text-sm italic">{prob.draw.opp}</text>
-                                    {/* ADJACENT LABEL */}
-                                    <text x="120" y="160" textAnchor="middle" className="fill-slate-400 font-black text-sm italic">{prob.draw.adj}</text>
+                                    <text x="82" y="135" className="fill-indigo-600 font-black text-[14px] italic">{prob.draw.ang}°</text>
+                                    <text x="110" y="80" textAnchor="middle" transform="rotate(-40 110,80)" className="fill-slate-500 font-black text-[14px] italic">{prob.draw.hyp}</text>
+                                    <text x="200" y="90" textAnchor="middle" className="fill-slate-500 font-black text-[14px] italic">{prob.draw.opp}</text>
+                                    <text x="120" y="165" textAnchor="middle" className="fill-slate-500 font-black text-[14px] italic">{prob.draw.adj}</text>
                                 </g>
                             ) : (
                                 <g>
                                     <rect x="50" y="40" width="140" height="100" fill="rgba(99, 102, 241, 0.05)" stroke="#6366f1" strokeWidth="6" />
-                                    <text x="120" y="30" textAnchor="middle" className="fill-slate-400 font-black text-sm italic">{prob.draw.l}</text>
-                                    <text x="205" y="95" textAnchor="middle" className="fill-slate-400 font-black text-sm italic">{prob.draw.w}</text>
+                                    <text x="120" y="30" textAnchor="middle" className="fill-slate-500 font-black text-sm italic">{prob.draw.l}</text>
+                                    <text x="205" y="95" textAnchor="middle" className="fill-slate-500 font-black text-sm italic">{prob.draw.w}</text>
                                 </g>
                             )}
                         </svg>
                     </div>
                 )}
 
-                <form onSubmit={submit} className="space-y-4">
-                    <input autoFocus type="text" value={input} onChange={(e) => setInput(e.target.value)} className={`w-full p-8 bg-slate-50 border-4 rounded-[32px] text-5xl font-black outline-none transition-all ${status === 'correct' ? 'border-emerald-500 bg-emerald-50 text-emerald-600' : status === 'wrong' ? 'border-rose-500 bg-rose-50' : 'border-slate-100 focus:border-indigo-600'}`} />
-                    <button type="submit" className="w-full bg-slate-900 text-white py-8 rounded-[32px] font-black text-2xl uppercase italic">Check</button>
+                <form onSubmit={submit} className="space-y-6">
+                    <input autoFocus type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type solution..." className={`w-full p-8 bg-slate-50 border-4 rounded-[32px] text-6xl font-black outline-none transition-all ${status === 'correct' ? 'border-emerald-500 bg-emerald-50 text-emerald-600' : status === 'wrong' ? 'border-rose-500 bg-rose-50' : 'border-slate-100 focus:border-indigo-600'}`} />
+                    <button type="submit" className="w-full bg-slate-900 text-white py-8 rounded-[32px] font-black text-2xl uppercase tracking-tighter italic hover:bg-black transition-all">Submit Entry</button>
                 </form>
             </div>
 
-            <div className="w-[340px] space-y-6">
+            <div className="w-[340px] space-y-8">
                 <Scratchpad />
-                {/* CONDITIONAL RENDERING: ONLY SHOW IN TRIGO QUESTIONS */}
                 {config.topic === 'Trigo' && <TrigTool />}
             </div>
         </div>
@@ -236,10 +231,11 @@ function TimerView({ onComplete }) {
     }, [r, s]);
     return (
         <div className="flex flex-col items-center pt-10 animate-in">
-            <div className="text-[12rem] font-black text-slate-900 tabular-nums leading-none mb-10">{Math.floor(s/60)}:{String(s%60).padStart(2,'0')}</div>
-            <div className="flex gap-4">
-                <button onClick={() => setR(!r)} className="px-16 py-6 bg-indigo-600 text-white rounded-[32px] font-black text-2xl shadow-xl">{r ? 'PAUSE' : 'FOCUS'}</button>
-                <button onClick={() => setS(1500)} className="p-6 bg-white border-2 rounded-[32px] text-2xl">🔄</button>
+            <h2 className="text-xl font-black text-slate-300 uppercase tracking-[0.5em] mb-10 italic">Deep Concentration</h2>
+            <div className="text-[12rem] font-black text-slate-900 tabular-nums leading-none mb-14 drop-shadow-2xl">{Math.floor(s/60)}:{String(s%60).padStart(2,'0')}</div>
+            <div className="flex gap-6">
+                <button onClick={() => setR(!r)} className={`px-24 py-10 rounded-[48px] font-black text-3xl shadow-2xl transition-all ${r ? 'bg-white text-slate-600 border-4 border-slate-100' : 'bg-indigo-600 text-white shadow-indigo-100'}`}>{r ? 'PAUSE' : 'START'}</button>
+                <button onClick={() => setS(1500)} className="p-10 bg-white border-4 border-slate-100 rounded-[48px] text-3xl hover:bg-slate-50 transition-all">🔄</button>
             </div>
         </div>
     );
@@ -248,11 +244,16 @@ function TimerView({ onComplete }) {
 function DashboardView({ xp }) {
     return (
         <div className="max-w-4xl animate-in">
-            <h2 className="text-5xl font-black mb-10 italic uppercase">Your Stats</h2>
-            <div className="bg-white p-10 rounded-[48px] border-4 border-indigo-50 flex items-center justify-between">
-                <div><p className="text-slate-400 font-bold uppercase text-xs">Energy Units</p><p className="text-6xl font-black text-indigo-600">{xp} XP</p></div>
-                <div className="h-20 w-1 bg-slate-100"></div>
-                <div className="text-right"><p className="text-slate-400 font-bold uppercase text-xs">Current Level</p><p className="text-4xl font-black text-slate-900 italic">{xp < 3000 ? 'Scholar' : 'Grandmaster'}</p></div>
+            <h2 className="text-6xl font-black mb-12 italic uppercase tracking-tighter text-slate-900">Scholar Profile</h2>
+            <div className="bg-white p-12 rounded-[56px] border-4 border-indigo-50 shadow-xl flex items-center justify-between">
+                <div>
+                    <p className="text-slate-400 font-black uppercase text-[10px] tracking-widest mb-2">Current Energy</p>
+                    <p className="text-7xl font-black text-indigo-600">{xp} <span className="text-2xl font-normal text-slate-300">XP</span></p>
+                </div>
+                <div className="text-right">
+                    <p className="text-slate-400 font-black uppercase text-[10px] tracking-widest mb-2">Rank</p>
+                    <p className="text-5xl font-black text-slate-900 italic uppercase tracking-tighter">{xp < 3000 ? 'Scholar' : 'Grandmaster'}</p>
+                </div>
             </div>
         </div>
     );
