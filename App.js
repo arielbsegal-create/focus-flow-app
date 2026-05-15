@@ -1,79 +1,158 @@
 const { useState, useEffect, useRef } = React;
 
-// --- MOCK DATA ---
-const MOCK_USER = { name: "Alex", totalHours: 12.4, accuracy: 88, streak: 7, xp: 1450, level: 12 };
-const MATH_PROBLEM = {
-    question: "Solve for x: 3x - 7 = 11",
-    hints: ["Add 7 to both sides.", "Divide 18 by 3."],
-    solution: "x = 6"
-};
+// --- DYNAMIC DATA ---
+const INITIAL_XP = 1450;
+const MATH_PROBLEMS = [
+    { id: 1, q: "2x + 5 = 15", a: "5", hints: ["Subtract 5 from both sides.", "2x = 10, so what is x?"], topic: "Algebra" },
+    { id: 2, q: "x / 3 = 12", a: "36", hints: ["Multiply both sides by 3.", "x = 12 * 3"], topic: "Equations" },
+    { id: 3, q: "5x - 10 = 0", a: "2", hints: ["Add 10 to both sides.", "5x = 10, so what is x?"], topic: "Algebra" }
+];
 
 function App() {
     const [view, setView] = useState('dashboard');
+    const [xp, setXp] = useState(INITIAL_XP);
+    const [stats, setStats] = useState({ sessions: 12, accuracy: 88, streak: 7 });
+
+    const addXp = (amount) => setXp(prev => prev + amount);
 
     return (
-        <div className="flex min-h-screen bg-slate-50 text-slate-900 font-sans">
-            {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between">
+        <div className="flex min-h-screen bg-[#f8fafc] text-slate-900 font-sans selection:bg-indigo-100">
+            {/* Sidebar with Gradient Accent */}
+            <aside className="w-72 bg-white border-r border-slate-200 p-8 flex flex-col justify-between sticky top-0 h-screen">
                 <div>
-                    <h1 className="text-xl font-bold text-indigo-600 mb-10">FocusFlow AI</h1>
-                    <nav className="space-y-2">
-                        <button onClick={() => setView('dashboard')} className={`w-full text-left p-3 rounded-xl ${view === 'dashboard' ? 'bg-indigo-600 text-white' : 'text-slate-500'}`}>📊 Dashboard</button>
-                        <button onClick={() => setView('math')} className={`w-full text-left p-3 rounded-xl ${view === 'math' ? 'bg-indigo-600 text-white' : 'text-slate-500'}`}>🤖 AI Tutor</button>
-                        <button onClick={() => setView('timer')} className={`w-full text-left p-3 rounded-xl ${view === 'timer' ? 'bg-indigo-600 text-white' : 'text-slate-500'}`}>⏱️ Timer</button>
+                    <div className="flex items-center gap-3 mb-12">
+                        <div className="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center text-white font-black text-xl">F</div>
+                        <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">FocusFlow</h1>
+                    </div>
+
+                    <nav className="space-y-3">
+                        <NavBtn active={view === 'dashboard'} onClick={() => setView('dashboard')} label="Overview" icon="📊" />
+                        <NavBtn active={view === 'math'} onClick={() => setView('math')} label="AI Tutor" icon="🧠" />
+                        <NavBtn active={view === 'timer'} onClick={() => setView('timer')} label="Focus Lab" icon="⏱️" />
                     </nav>
                 </div>
-                <div className="bg-indigo-50 p-4 rounded-xl text-xs">
-                    <p className="font-bold text-indigo-600">LEVEL {MOCK_USER.level}</p>
-                    <div className="w-full bg-slate-200 h-2 rounded-full mt-1"><div className="bg-indigo-600 h-full w-2/3"></div></div>
+
+                <div className="bg-slate-900 rounded-2xl p-5 text-white shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/20 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                    <p className="text-[10px] font-black tracking-widest text-indigo-400 uppercase mb-2">Rank: Scholar</p>
+                    <div className="flex justify-between items-end mb-2">
+                        <span className="text-2xl font-bold">{xp}</span>
+                        <span className="text-xs text-slate-400">Next: 2000 XP</span>
+                    </div>
+                    <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-gradient-to-r from-indigo-400 to-violet-400 h-full transition-all duration-1000" style={{ width: `${(xp/2000)*100}%` }}></div>
+                    </div>
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <main className="flex-1 p-10">
-                {view === 'dashboard' && <Dashboard />}
-                {view === 'math' && <MathAgent />}
-                {view === 'timer' && <Timer />}
+            {/* Main Content Area */}
+            <main className="flex-1 p-12 max-w-6xl mx-auto w-full">
+                {view === 'dashboard' && <Dashboard userStats={stats} xp={xp} />}
+                {view === 'math' && <MathAgent onSolve={() => addXp(50)} />}
+                {view === 'timer' && <Timer onFinish={() => addXp(100)} />}
             </main>
         </div>
     );
 }
 
-function Dashboard() {
+// --- UI COMPONENTS ---
+
+function NavBtn({ active, onClick, label, icon }) {
     return (
-        <div>
-            <h2 className="text-3xl font-bold mb-6">Welcome back, {MOCK_USER.name}</h2>
-            <div className="grid grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <p className="text-slate-400 text-sm">Study Time</p>
-                    <p className="text-2xl font-bold">{MOCK_USER.totalHours}h</p>
-                </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <p className="text-slate-400 text-sm">Accuracy</p>
-                    <p className="text-2xl font-bold">{MOCK_USER.accuracy}%</p>
-                </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <p className="text-slate-400 text-sm">Streak</p>
-                    <p className="text-2xl font-bold">{MOCK_USER.streak} Days</p>
+        <button onClick={onClick} className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 group ${
+            active ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100 scale-[1.02]' : 'text-slate-500 hover:bg-slate-100 hover:translate-x-1'
+        }`}>
+            <span className={`text-xl ${active ? 'opacity-100' : 'opacity-50 group-hover:opacity-100'}`}>{icon}</span>
+            <span className="font-bold tracking-tight">{label}</span>
+        </button>
+    );
+}
+
+function Dashboard({ userStats, xp }) {
+    return (
+        <div className="animate-in fade-in duration-700">
+            <header className="mb-12">
+                <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Dashboard</h2>
+                <p className="text-slate-500 font-medium">Your learning momentum is looking strong today.</p>
+            </header>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <Card title="Focus Power" value={userStats.sessions + "h"} detail="Top 10% worldwide" icon="⚡" color="indigo" />
+                <Card title="Solve Rate" value={userStats.accuracy + "%"} detail="+4% from last week" icon="🎯" color="emerald" />
+                <Card title="Current Streak" value={userStats.streak} detail="Days active" icon="🔥" color="orange" />
+            </div>
+
+            <div className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm">
+                <h3 className="font-bold text-xl mb-6">Weekly Activity</h3>
+                <div className="flex items-end justify-between h-40 gap-4">
+                    {[30, 50, 85, 40, 95, 60, 75].map((h, i) => (
+                        <div key={i} className="group relative flex-1">
+                            <div className="bg-slate-100 w-full rounded-full h-40 absolute bottom-0"></div>
+                            <div className="bg-gradient-to-t from-indigo-500 to-violet-400 w-full rounded-full absolute bottom-0 transition-all duration-700 group-hover:brightness-110" style={{ height: `${h}%` }}></div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>
     );
 }
 
-function MathAgent() {
+function MathAgent({ onSolve }) {
+    const [index, setIndex] = useState(0);
+    const [userInput, setUserInput] = useState("");
     const [hintLevel, setHintLevel] = useState(0);
+    const [feedback, setFeedback] = useState(null); // 'correct', 'wrong', null
+
+    const current = MATH_PROBLEMS[index];
+
+    const checkAnswer = () => {
+        if (userInput.trim() === current.a) {
+            setFeedback('correct');
+            onSolve(); // Give XP
+            setTimeout(() => {
+                setIndex((index + 1) % MATH_PROBLEMS.length);
+                setUserInput("");
+                setHintLevel(0);
+                setFeedback(null);
+            }, 1500);
+        } else {
+            setFeedback('wrong');
+            setTimeout(() => setFeedback(null), 1000);
+        }
+    };
+
     return (
-        <div className="max-w-xl bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="text-xl font-bold mb-4">{MATH_PROBLEM.question}</h3>
-            <div className="space-y-3 mb-6">
-                {hintLevel >= 1 && <div className="p-3 bg-amber-50 border-l-4 border-amber-400 text-sm">Hint 1: {MATH_PROBLEM.hints[0]}</div>}
-                {hintLevel >= 2 && <div className="p-3 bg-amber-50 border-l-4 border-amber-400 text-sm">Hint 2: {MATH_PROBLEM.hints[1]}</div>}
-                {hintLevel >= 3 && <div className="p-3 bg-emerald-50 border-l-4 border-emerald-400 text-sm font-bold text-emerald-700">Solution: {MATH_PROBLEM.solution}</div>}
+        <div className="max-w-2xl mx-auto animate-in zoom-in-95 duration-500">
+            <div className="bg-white p-12 rounded-[40px] shadow-2xl border border-slate-100 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-8 text-slate-100 font-black text-6xl select-none uppercase tracking-tighter">AI Tutor</div>
+
+                <span className="bg-indigo-100 text-indigo-700 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 inline-block">{current.topic}</span>
+                <h3 className="text-4xl font-bold text-slate-900 mb-8">{current.q}</h3>
+
+                <div className="space-y-4 mb-10 min-h-[120px]">
+                    {hintLevel >= 1 && <div className="p-5 bg-amber-50 rounded-2xl border border-amber-100 text-amber-900 animate-in slide-in-from-top-2">💡 <span className="font-medium ml-2">{current.hints[0]}</span></div>}
+                    {hintLevel >= 2 && <div className="p-5 bg-indigo-50 rounded-2xl border border-indigo-100 text-indigo-900 animate-in slide-in-from-top-2">🤔 <span className="font-medium ml-2">{current.hints[1]}</span></div>}
+                </div>
+
+                <div className="flex gap-4">
+                    <input
+                        type="text"
+                        value={userInput}
+                        onChange={(e) => setUserInput(e.target.value)}
+                        placeholder="Type answer..."
+                        className={`flex-1 bg-slate-50 border-2 px-6 py-4 rounded-2xl text-xl font-bold transition-all focus:outline-none focus:ring-4 focus:ring-indigo-100 ${
+                            feedback === 'correct' ? 'border-emerald-500 bg-emerald-50' :
+                            feedback === 'wrong' ? 'border-rose-500 animate-bounce' : 'border-slate-100 focus:border-indigo-500'
+                        }`}
+                    />
+                    <button onClick={checkAnswer} className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all">Submit</button>
+                </div>
+
+                <div className="mt-8 flex items-center justify-between">
+                    <button onClick={() => setHintLevel(h => Math.min(h + 1, 2))} className="text-indigo-600 font-bold text-sm hover:underline">I'm stuck, need a hint</button>
+                    {feedback === 'correct' && <span className="text-emerald-600 font-black animate-pulse">✨ EXCELLENT! +50 XP</span>}
+                </div>
             </div>
-            <button onClick={() => setHintLevel(h => Math.min(h + 1, 3))} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold">
-                {hintLevel === 0 ? "Get Hint" : hintLevel === 3 ? "Solved!" : "Next Hint"}
-            </button>
         </div>
     );
 }
@@ -81,25 +160,56 @@ function MathAgent() {
 function Timer() {
     const [seconds, setSeconds] = useState(1500);
     const [active, setActive] = useState(false);
+    const intervalRef = useRef();
 
     useEffect(() => {
-        let timer;
-        if (active && seconds > 0) timer = setInterval(() => setSeconds(s => s - 1), 1000);
-        return () => clearInterval(timer);
+        if (active && seconds > 0) {
+            intervalRef.current = setInterval(() => setSeconds(s => s - 1), 1000);
+        } else {
+            clearInterval(intervalRef.current);
+        }
+        return () => clearInterval(intervalRef.current);
     }, [active, seconds]);
 
     const format = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
     return (
-        <div className="text-center pt-10">
-            <div className="text-9xl font-mono font-bold text-slate-800 mb-10">{format(seconds)}</div>
-            <button onClick={() => setActive(!active)} className="bg-indigo-600 text-white px-12 py-4 rounded-full text-xl font-bold">
-                {active ? 'Pause' : 'Start Focus'}
-            </button>
+        <div className="flex flex-col items-center justify-center py-10">
+            <div className="w-80 h-80 bg-white rounded-full shadow-[0_0_80px_rgba(79,70,229,0.15)] flex flex-col items-center justify-center border-[12px] border-slate-50 relative">
+                <svg className="absolute inset-0 w-full h-full -rotate-90">
+                    <circle cx="160" cy="160" r="154" fill="none" stroke="#6366f1" strokeWidth="12" strokeDasharray="967" strokeDashoffset={967 - (967 * (seconds / 1500))} className="transition-all duration-1000 ease-linear" />
+                </svg>
+                <span className="text-7xl font-black text-slate-800 tracking-tighter tabular-nums">{format(seconds)}</span>
+                <span className="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2">Deep Work</span>
+            </div>
+
+            <div className="mt-16 flex gap-6">
+                <button onClick={() => setActive(!active)} className={`px-12 py-5 rounded-[24px] font-black text-xl transition-all shadow-2xl ${
+                    active ? 'bg-white text-slate-600 hover:bg-slate-50' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-200'
+                }`}>
+                    {active ? 'PAUSE' : 'START SESSION'}
+                </button>
+                <button onClick={() => {setSeconds(1500); setActive(false)}} className="w-20 h-20 flex items-center justify-center bg-white border border-slate-200 rounded-[24px] text-2xl hover:bg-slate-50 transition-all">🔄</button>
+            </div>
         </div>
     );
 }
 
-// Render the app
+function Card({ title, value, detail, icon, color }) {
+    const colors = {
+        indigo: 'text-indigo-600 bg-indigo-50 border-indigo-100',
+        emerald: 'text-emerald-600 bg-emerald-50 border-emerald-100',
+        orange: 'text-orange-600 bg-orange-50 border-orange-100'
+    };
+    return (
+        <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl mb-6 border ${colors[color]}`}>{icon}</div>
+            <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-1">{title}</p>
+            <h4 className="text-4xl font-black mb-2 tracking-tight text-slate-900">{value}</h4>
+            <p className="text-sm font-medium text-slate-500">{detail}</p>
+        </div>
+    );
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
