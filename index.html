@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusFlow AI | Professional Math Engine</title>
+    <title>FocusFlow AI | Pro Math & Geometry Engine</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -11,19 +11,16 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-
-        :root {
-            --indigo-focus: #6366f1;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: #f8fafc;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Smooth state transitions */
+        /* Smooth UI Entrance */
         .animate-in {
             animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
@@ -33,50 +30,48 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Subtle shake for wrong answers */
+        /* Subtle shake for incorrect answers */
         .animate-shake {
-            animation: shake 0.4s ease-in-out;
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px); }
-            75% { transform: translateX(8px); }
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+            40%, 60% { transform: translate3d(8px, 0, 0); }
         }
 
-        /* Canvas styling for the 2px pencil */
+        /* Engineering Grid for Scratchpad */
         canvas {
             touch-action: none;
-            background-image:
-                radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
             background-size: 20px 20px;
         }
     </style>
 
     <script>
-        // Tailwind Configuration for consistent branding
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         indigo: {
                             50: '#f5f3ff',
-                            600: '#6366f1',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
                             700: '#4338ca',
-                            900: '#1e1b4b',
+                            900: '#312e81',
                         },
-                    },
-                    borderRadius: {
-                        '3xl': '1.5rem',
-                        '4xl': '2rem',
-                        '5xl': '3rem',
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="antialiased">
+<body>
 
     <div id="root"></div>
 
