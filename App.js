@@ -1,231 +1,164 @@
 const { useState, useEffect, useRef } = React;
 
-// --- DYNAMIC DATA ---
-const INITIAL_XP = 1450;
-const MATH_PROBLEMS = [
-    { id: 1, q: "2x + 5 = 15", a: "5", hints: ["Subtract 5 from both sides.", "2x = 10, so what is x?"], topic: "Algebra" },
-    { id: 2, q: "x / 3 = 12", a: "36", hints: ["Multiply both sides by 3.", "x = 12 * 3"], topic: "Equations" },
-    { id: 3, q: "5x - 10 = 0", a: "2", hints: ["Add 10 to both sides.", "5x = 10, so what is x?"], topic: "Algebra" }
+// 1. Move data inside or ensure it's accessible
+const PROBLEMS = [
+    { q: "2x + 5 = 15", a: "5", hints: ["Subtract 5 from both sides.", "2x = 10, so what is x?"], topic: "Algebra" },
+    { q: "x / 3 = 12", a: "36", hints: ["Multiply both sides by 3.", "x = 12 * 3"], topic: "Equations" },
+    { q: "10 - x = 4", a: "6", hints: ["What number taken from 10 leaves 4?", "Subtract 10 from both sides."], topic: "Basic Math" }
 ];
 
 function App() {
     const [view, setView] = useState('dashboard');
-    const [xp, setXp] = useState(INITIAL_XP);
-    const [stats, setStats] = useState({ sessions: 12, accuracy: 88, streak: 7 });
-
-    const addXp = (amount) => setXp(prev => prev + amount);
+    const [xp, setXp] = useState(1450);
 
     return (
-        <div className="flex min-h-screen bg-[#f8fafc] text-slate-900 font-sans selection:bg-indigo-100">
-            {/* Sidebar with Gradient Accent */}
-            <aside className="w-72 bg-white border-r border-slate-200 p-8 flex flex-col justify-between sticky top-0 h-screen">
+        <div className="flex min-h-screen bg-slate-50 text-slate-900 font-sans">
+            {/* Sidebar */}
+            <aside className="w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between fixed h-full">
                 <div>
-                    <div className="flex items-center gap-3 mb-12">
-                        <div className="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center text-white font-black text-xl">F</div>
-                        <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">FocusFlow</h1>
-                    </div>
-
-                    <nav className="space-y-3">
-                        <NavBtn active={view === 'dashboard'} onClick={() => setView('dashboard')} label="Overview" icon="📊" />
-                        <NavBtn active={view === 'math'} onClick={() => setView('math')} label="AI Tutor" icon="🧠" />
-                        <NavBtn active={view === 'timer'} onClick={() => setView('timer')} label="Focus Lab" icon="⏱️" />
+                    <h1 className="text-2xl font-black text-indigo-600 mb-10 tracking-tighter">FOCUSFLOW</h1>
+                    <nav className="space-y-2">
+                        <button onClick={() => setView('dashboard')} className={`w-full flex items-center gap-3 p-3 rounded-xl font-bold transition ${view === 'dashboard' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-100'}`}>
+                            <span>📊</span> Dashboard
+                        </button>
+                        <button onClick={() => setView('math')} className={`w-full flex items-center gap-3 p-3 rounded-xl font-bold transition ${view === 'math' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-100'}`}>
+                            <span>🧠</span> AI Tutor
+                        </button>
+                        <button onClick={() => setView('timer')} className={`w-full flex items-center gap-3 p-3 rounded-xl font-bold transition ${view === 'timer' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-100'}`}>
+                            <span>⏱️</span> Focus Timer
+                        </button>
                     </nav>
                 </div>
-
-                <div className="bg-slate-900 rounded-2xl p-5 text-white shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/20 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                    <p className="text-[10px] font-black tracking-widest text-indigo-400 uppercase mb-2">Rank: Scholar</p>
-                    <div className="flex justify-between items-end mb-2">
-                        <span className="text-2xl font-bold">{xp}</span>
-                        <span className="text-xs text-slate-400">Next: 2000 XP</span>
-                    </div>
-                    <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-gradient-to-r from-indigo-400 to-violet-400 h-full transition-all duration-1000" style={{ width: `${(xp/2000)*100}%` }}></div>
+                <div className="bg-slate-900 p-4 rounded-2xl text-white">
+                    <p className="text-[10px] font-bold text-indigo-400 uppercase">XP Progress</p>
+                    <p className="text-xl font-black">{xp} XP</p>
+                    <div className="w-full bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+                        <div className="bg-indigo-400 h-full transition-all duration-500" style={{ width: `${(xp % 1000) / 10}%` }}></div>
                     </div>
                 </div>
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 p-12 max-w-6xl mx-auto w-full">
-                {view === 'dashboard' && <Dashboard userStats={stats} xp={xp} />}
-                {view === 'math' && <MathAgent onSolve={() => addXp(50)} />}
-                {view === 'timer' && <Timer onFinish={() => addXp(100)} />}
+            <main className="flex-1 ml-64 p-12">
+                {view === 'dashboard' && <DashboardView xp={xp} />}
+                {view === 'math' && <MathTutorView onCorrect={() => setXp(prev => prev + 50)} />}
+                {view === 'timer' && <TimerView onComplete={() => setXp(prev => prev + 100)} />}
             </main>
         </div>
     );
 }
 
-// --- UI COMPONENTS ---
-
-function NavBtn({ active, onClick, label, icon }) {
+function DashboardView({ xp }) {
     return (
-        <button onClick={onClick} className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 group ${
-            active ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100 scale-[1.02]' : 'text-slate-500 hover:bg-slate-100 hover:translate-x-1'
-        }`}>
-            <span className={`text-xl ${active ? 'opacity-100' : 'opacity-50 group-hover:opacity-100'}`}>{icon}</span>
-            <span className="font-bold tracking-tight">{label}</span>
-        </button>
-    );
-}
-
-function Dashboard({ userStats, xp }) {
-    return (
-        <div className="animate-in fade-in duration-700">
-            <header className="mb-12">
-                <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Dashboard</h2>
-                <p className="text-slate-500 font-medium">Your learning momentum is looking strong today.</p>
-            </header>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                <Card title="Focus Power" value={userStats.sessions + "h"} detail="Top 10% worldwide" icon="⚡" color="indigo" />
-                <Card title="Solve Rate" value={userStats.accuracy + "%"} detail="+4% from last week" icon="🎯" color="emerald" />
-                <Card title="Current Streak" value={userStats.streak} detail="Days active" icon="🔥" color="orange" />
-            </div>
-
-            <div className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm">
-                <h3 className="font-bold text-xl mb-6">Weekly Activity</h3>
-                <div className="flex items-end justify-between h-40 gap-4">
-                    {[30, 50, 85, 40, 95, 60, 75].map((h, i) => (
-                        <div key={i} className="group relative flex-1">
-                            <div className="bg-slate-100 w-full rounded-full h-40 absolute bottom-0"></div>
-                            <div className="bg-gradient-to-t from-indigo-500 to-violet-400 w-full rounded-full absolute bottom-0 transition-all duration-700 group-hover:brightness-110" style={{ height: `${h}%` }}></div>
-                        </div>
-                    ))}
+        <div className="max-w-4xl">
+            <h2 className="text-4xl font-black mb-8">Welcome Back!</h2>
+            <div className="grid grid-cols-2 gap-6">
+                <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                    <p className="text-slate-400 font-bold uppercase text-xs">Current Ranking</p>
+                    <p className="text-3xl font-black mt-2 text-indigo-600">Scholar Level 12</p>
+                </div>
+                <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                    <p className="text-slate-400 font-bold uppercase text-xs">Total XP</p>
+                    <p className="text-3xl font-black mt-2 text-indigo-600">{xp}</p>
                 </div>
             </div>
         </div>
     );
 }
 
-function MathAgent({ onSolve }) {
-    const [index, setIndex] = useState(0);
-    const [userInput, setUserInput] = useState("");
-    const [hintLevel, setHintLevel] = useState(0);
-    const [feedback, setFeedback] = useState(null);
+function MathTutorView({ onCorrect }) {
+    const [probIdx, setProbIdx] = useState(0);
+    const [input, setInput] = useState("");
+    const [hints, setHints] = useState(0);
+    const [status, setStatus] = useState('idle'); // idle, correct, wrong
 
-    const current = MATH_PROBLEMS[index];
+    const current = PROBLEMS[probIdx];
 
-    const checkAnswer = () => {
-        if (userInput.trim() === current.a) {
-            setFeedback('correct');
-            onSolve();
+    const handleSubmit = (e) => {
+        if(e) e.preventDefault();
+        if (input.trim() === current.a) {
+            setStatus('correct');
+            onCorrect();
             setTimeout(() => {
-                setIndex((index + 1) % MATH_PROBLEMS.length);
-                setUserInput("");
-                setHintLevel(0);
-                setFeedback(null);
+                setProbIdx((prev) => (prev + 1) % PROBLEMS.length);
+                setInput("");
+                setHints(0);
+                setStatus('idle');
             }, 1500);
         } else {
-            setFeedback('wrong');
-            setTimeout(() => setFeedback(null), 1000);
+            setStatus('wrong');
+            setTimeout(() => setStatus('idle'), 1000);
         }
     };
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <div className="bg-white p-10 rounded-[32px] shadow-xl border-2 border-slate-100">
-                <div className="mb-8">
-                    <span className="text-indigo-600 font-bold text-sm uppercase tracking-widest">Question {index + 1}</span>
-                    <h3 className="text-5xl font-black text-slate-900 mt-2">{current.q}</h3>
-                </div>
-
-                {/* Hints Area */}
-                <div className="min-h-[100px] mb-8">
-                    {hintLevel >= 1 && <div className="p-4 bg-amber-50 rounded-xl mb-2 text-amber-800 border border-amber-200">💡 {current.hints[0]}</div>}
-                    {hintLevel >= 2 && <div className="p-4 bg-indigo-50 rounded-xl text-indigo-800 border border-indigo-200">🤔 {current.hints[1]}</div>}
-                </div>
-
-                {/* THE INPUT BOX - MADE VERY OBVIOUS */}
-                <div className="flex flex-col gap-4">
-                    <label className="text-slate-500 font-bold text-sm">TYPE YOUR ANSWER HERE:</label>
-                    <div className="flex gap-4">
-                        <input
-                            type="text"
-                            autoFocus
-                            value={userInput}
-                            onChange={(e) => setUserInput(e.target.value)}
-                            placeholder="e.g. 5"
-                            className={`flex-1 px-8 py-6 rounded-2xl text-3xl font-black transition-all border-4 outline-none ${
-                                feedback === 'correct' ? 'border-emerald-500 bg-emerald-50' :
-                                feedback === 'wrong' ? 'border-rose-500 bg-rose-50 animate-shake' :
-                                'border-slate-900 bg-white focus:ring-8 focus:ring-indigo-100'
-                            }`}
-                        />
-                        <button
-                            onClick={checkAnswer}
-                            className="bg-indigo-600 text-white px-10 rounded-2xl font-black text-xl hover:bg-indigo-700 active:scale-95 transition-all shadow-lg shadow-indigo-200"
-                        >
-                            SUBMIT
-                        </button>
-                    </div>
-                </div>
-
-                <div className="mt-8 flex justify-between items-center">
-                    <button
-                        onClick={() => setHintLevel(h => Math.min(h + 1, 2))}
-                        className="text-slate-400 font-bold hover:text-indigo-600 transition-colors"
-                    >
-                        {hintLevel < 2 ? "+ Need a hint?" : "No more hints!"}
-                    </button>
-                    {feedback === 'correct' && <span className="text-emerald-600 font-black tracking-tighter text-xl">✨ CORRECT!</span>}
-                </div>
+        <div className="max-w-2xl bg-white p-10 rounded-[40px] shadow-2xl border border-slate-100">
+            <div className="mb-10">
+                <p className="text-indigo-600 font-black uppercase text-xs tracking-widest mb-2">{current.topic}</p>
+                <h3 className="text-6xl font-black text-slate-900 tracking-tighter">{current.q}</h3>
             </div>
+
+            <div className="space-y-3 mb-10 min-h-[120px]">
+                {hints >= 1 && <div className="p-4 bg-amber-50 text-amber-800 rounded-2xl border border-amber-200 font-medium">💡 {current.hints[0]}</div>}
+                {hints >= 2 && <div className="p-4 bg-indigo-50 text-indigo-800 rounded-2xl border border-indigo-200 font-medium">🤔 {current.hints[1]}</div>}
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type your answer..."
+                    className={`w-full p-6 bg-slate-50 border-4 rounded-3xl text-3xl font-black transition-all outline-none ${
+                        status === 'correct' ? 'border-emerald-500 bg-emerald-50' :
+                        status === 'wrong' ? 'border-rose-500 bg-rose-50' : 'border-slate-100 focus:border-indigo-600'
+                    }`}
+                />
+                <div className="flex gap-4">
+                    <button type="submit" className="flex-1 bg-slate-900 text-white py-5 rounded-2xl font-black text-xl hover:bg-black transition-all">SUBMIT ANSWER</button>
+                    <button type="button" onClick={() => setHints(prev => Math.min(prev + 1, 2))} className="px-8 bg-slate-100 text-slate-600 py-5 rounded-2xl font-black hover:bg-slate-200 transition-all">HINT</button>
+                </div>
+            </form>
+            {status === 'correct' && <p className="text-center mt-6 text-emerald-600 font-black text-xl animate-bounce">✨ NICE! +50 XP</p>}
         </div>
     );
 }
 
-function Card({ title, value, detail, icon, color }) {
-    const colors = {
-        indigo: 'text-indigo-600 bg-indigo-50 border-indigo-100',
-        emerald: 'text-emerald-600 bg-emerald-50 border-emerald-100',
-        orange: 'text-orange-600 bg-orange-50 border-orange-100'
-    };
-    return (
-        <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl mb-6 border ${colors[color]}`}>{icon}</div>
-            <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-1">{title}</p>
-            <h4 className="text-4xl font-black mb-2 tracking-tight text-slate-900">{value}</h4>
-            <p className="text-sm font-medium text-slate-500">{detail}</p>
-        </div>
-    );
-}
-function Timer() {
-    const [seconds, setSeconds] = useState(1500);
+function TimerView({ onComplete }) {
+    const [time, setTime] = useState(1500);
     const [active, setActive] = useState(false);
-    const intervalRef = useRef();
 
     useEffect(() => {
-        if (active && seconds > 0) {
-            intervalRef.current = setInterval(() => setSeconds(s => s - 1), 1000);
-        } else {
-            clearInterval(intervalRef.current);
+        let t;
+        if (active && time > 0) t = setInterval(() => setTime(prev => prev - 1), 1000);
+        else if (time === 0) {
+            setActive(false);
+            onComplete();
+            alert("Session complete! +100 XP");
         }
-        return () => clearInterval(intervalRef.current);
-    }, [active, seconds]);
+        return () => clearInterval(t);
+    }, [active, time]);
 
     const format = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
     return (
         <div className="flex flex-col items-center justify-center py-10">
-            <div className="w-80 h-80 bg-white rounded-full shadow-[0_0_80px_rgba(79,70,229,0.15)] flex flex-col items-center justify-center border-[12px] border-slate-50 relative">
-                <svg className="absolute inset-0 w-full h-full -rotate-90">
-                    <circle cx="160" cy="160" r="154" fill="none" stroke="#6366f1" strokeWidth="12" strokeDasharray="967" strokeDashoffset={967 - (967 * (seconds / 1500))} className="transition-all duration-1000 ease-linear" />
-                </svg>
-                <span className="text-7xl font-black text-slate-800 tracking-tighter tabular-nums">{format(seconds)}</span>
-                <span className="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2">Deep Work</span>
+            <div className="text-[12rem] font-black text-slate-900 tracking-tighter leading-none mb-10 tabular-nums">
+                {format(time)}
             </div>
-
-            <div className="mt-16 flex gap-6">
-                <button onClick={() => setActive(!active)} className={`px-12 py-5 rounded-[24px] font-black text-xl transition-all shadow-2xl ${
-                    active ? 'bg-white text-slate-600 hover:bg-slate-50' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-200'
-                }`}>
-                    {active ? 'PAUSE' : 'START SESSION'}
+            <div className="flex gap-4">
+                <button onClick={() => setActive(!active)} className={`px-16 py-6 rounded-3xl font-black text-2xl shadow-2xl transition-all ${active ? 'bg-white text-slate-600 border border-slate-200' : 'bg-indigo-600 text-white'}`}>
+                    {active ? 'PAUSE' : 'START FOCUS'}
                 </button>
-                <button onClick={() => {setSeconds(1500); setActive(false)}} className="w-20 h-20 flex items-center justify-center bg-white border border-slate-200 rounded-[24px] text-2xl hover:bg-slate-50 transition-all">🔄</button>
+                <button onClick={() => {setTime(1500); setActive(false);}} className="p-6 bg-white border border-slate-200 rounded-3xl text-2xl font-bold">🔄</button>
             </div>
         </div>
     );
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+// 4. Connect to the HTML root
+const rootElement = document.getElementById('root');
+if (rootElement) {
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+}
