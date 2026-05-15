@@ -1,29 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
-  }
-  .animate-shake { animation: shake 0.2s ease-in-out 0s 2; }
-</style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FocusFlow AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* This adds the 'bounce' effect when you get a math question right */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-bounce { animation: bounce 0.5s infinite; }
+    </style>
 </head>
-<body>
+<body class="bg-slate-50">
+
     <div id="root"></div>
 
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script type="text/babel" src="App.js"></script>
-    <script type="text/babel" src="App.js"></script>
+
 </body>
 </html>
